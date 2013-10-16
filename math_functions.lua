@@ -157,14 +157,30 @@ end
 
 	@param   number   point x
 	@param   number   point y
-	@param   number   triangle x1
-	@param   number   triangle y1
-	@param   number   triangle x2
-	@param   number   triangle y2
-	@return  bool     is point in triangle
+	@param   number   ellipse x
+	@param   number   ellipse y
+	@param   number   ellipse width
+	@param   number   ellipse height
+	@param   number   ellipse angled
+	@return  bool     is point in ellipse
 --]]
-function isPointInEllipse(x, y, ex, ey, ew, eh, ea)
+function isPointInEllipse2(x, y, ex, ey, ew, eh, ea)
 	local A = ((x - ex) * math.cos(ea) - (y - ey) * math.sin(ea))^2 / (ew/2)^2
 	local B = ((x - ex) * math.sin(ea) + (y - ey) * math.cos(ea))^2 / (eh/2)^2
 	return A + B < 1
+end
+
+--[[
+	Checks if a point is in a non angled ellipse
+
+	@param   number   point x
+	@param   number   point y
+	@param   number   ellipse x
+	@param   number   ellipse y
+	@param   number   ellipse width
+	@param   number   ellipse height
+	@return  bool     is point in non angled ellipse
+--]]
+function isPointInNonAngledEllipse(x, y, ex, ey, ew, eh)
+	return ((x - eh)^2 / ew^2) + ((y - ey)^2 / eh^2) < 1
 end
