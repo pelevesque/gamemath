@@ -127,8 +127,7 @@ function isPointInPolygon(x, y, v)
 	local lastV = #v - 1
 	local j = lastV
 	for i = 1, j, 2 do
-		if ((v[i+1] > y) ~= (v[j+1] > y)) and
-			(x < (v[j] - v[i]) * (y - v[i+1]) / (v[j+1] - v[i+1]) + v[i]) then
+		if ((v[i+1] > y) ~= (v[j+1] > y)) and (x < (v[j] - v[i]) * (y - v[i+1]) / (v[j+1] - v[i+1]) + v[i]) then
 			if inPolygon then inPolygon = false else inPolygon = true end
 		end
 		if j == lastV then j = -1 end
