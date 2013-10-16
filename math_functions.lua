@@ -148,3 +148,23 @@ function isPointInPolygon(x, y, v)
 	end
 	return inPolygon
 end
+
+--[[
+	Checks if a point is in an ellipse
+
+	Note: This algorithm is not very efficient because of sin and cos,
+	      and it hasn't been tested for angled ellipses.
+
+	@param   number   point x
+	@param   number   point y
+	@param   number   triangle x1
+	@param   number   triangle y1
+	@param   number   triangle x2
+	@param   number   triangle y2
+	@return  bool     is point in triangle
+--]]
+function isPointInEllipse(x, y, ex, ey, ew, eh, ea)
+	local A = ((x - ex) * math.cos(ea) - (y - ey) * math.sin(ea))^2 / (ew/2)^2
+	local B = ((x - ex) * math.sin(ea) + (y - ey) * math.cos(ea))^2 / (eh/2)^2
+	return A + B < 1
+end
