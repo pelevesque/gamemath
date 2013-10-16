@@ -76,6 +76,19 @@ function isPointInRectangle(x, y, x1, y1, x2, y2)
 end
 
 --[[
+	Checks if a point is in a circle
+
+	@param   number   point x
+	@param   number   point y
+	@param   number   center x
+	@param   number   center y
+	@return  bool     is point in circle
+--]]
+function isPointInCircle(x, y, cx, cy, cr)
+	return (x - cx)^2 + (y - cy)^2 < cr^2
+end
+
+--[[
 	Checks if a point is in a triangle
 
 	Note: This is a baycentric algorithm.
