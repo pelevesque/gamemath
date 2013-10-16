@@ -153,7 +153,7 @@ end
 	Checks if a point is in an ellipse
 
 	Note: This algorithm is not very efficient because of sin and cos,
-	      and it hasn't been tested for angled ellipses.
+	      and it hasn't been tested.
 
 	@param   number   point x
 	@param   number   point y
@@ -164,14 +164,14 @@ end
 	@param   number   ellipse angled
 	@return  bool     is point in ellipse
 --]]
-function isPointInEllipse2(x, y, ex, ey, ew, eh, ea)
+function isPointInEllipse(x, y, ex, ey, ew, eh, ea)
 	local A = ((x - ex) * math.cos(ea) - (y - ey) * math.sin(ea))^2 / (ew/2)^2
 	local B = ((x - ex) * math.sin(ea) + (y - ey) * math.cos(ea))^2 / (eh/2)^2
 	return A + B < 1
 end
 
 --[[
-	Checks if a point is in a non angled ellipse
+	Checks if a point is in an axis parallel ellipse
 
 	@param   number   point x
 	@param   number   point y
@@ -181,6 +181,29 @@ end
 	@param   number   ellipse height
 	@return  bool     is point in non angled ellipse
 --]]
-function isPointInNonAngledEllipse(x, y, ex, ey, ew, eh)
+function isPointInAxisParallelEllipse(x, y, ex, ey, ew, eh)
 	return ((x - eh)^2 / ew^2) + ((y - ey)^2 / eh^2) < 1
+end
+
+--[[
+	Checks if a circle intersects an axis parallel rectangle
+
+	@param   number   circle x
+	@param   number   circle y
+	@param   number   circle r
+	@param   number   rectangle center x
+	@param   number   rectangle center y
+	@param   number   rectangle width
+	@param   number   rectangle height
+	@return  bool     does circle intersect rectangle
+--]]
+function doesCircleInstersectRectangle(cx, cy, cr, rcx, rcy, rw, rh)
+	local circleDistanceX = math.abs(cx - rcx)
+	if circleDistanceX > rw / 2 + cr then return false end
+	local circleDistanceY = math.abs(cy - rcy)
+	if circleDistanceY > rh / 2 + cr then return false end
+	if circleDistanceX <= rw / 2 then return true end
+	if circleDistanceY <= rh / 2 then return true end
+	local cornerDistance_sq = (circleDistanceX - rw / 2)^2 + (circleDistanceY - rh / 2)^2
+	return cornerDistance_sq <= cr^2
 end
