@@ -9,16 +9,38 @@ License:   MIT license - @see LICENSE.md
 --]]
 
 --[[
-	Wraps an angle in degrees
+	Gets the polar coordinate pole (P point) from theta and radius
 
-	Ex: 380 -> 20
-	Ex: -725 -> 355
-
-	@param   number   angle
-	@return  number   angle
+	@param   number   theta (angle in radians)
+	@param   number   radius
+	@return  list     x, y
 --]]
-function wrapAngleInDegrees(angle)
-	return angle % 360
+function getPolarCoordinatePole(theta, radius)
+	return math.cos(theta) * radius, math.sin(theta) * radius
+end
+
+--[[
+	Gets a line's angle in degrees from its points
+
+	@param   number   x1
+	@param   number   y1
+	@param   number   x2
+	@param   number   y2
+	@return  number   angle (degrees)
+--]]
+function getLineAngleInDegreesFromPoints(x1, y1, x2, y2)
+	return math.atan2(y2 - y1, x2 - x1) * 180 / math.pi
+end
+
+--[[
+	Reflects an angle in degrees off a plane
+
+	@param   number   attack angle (degrees)
+	@param   number   plane angle (degrees)
+	@return  number   reflected angle (degrees)
+--]]
+function reflectAngleInDegrees(attackAngle, planeAngle)
+	return ((2 * planeAngle) - attackAngle) % 360
 end
 
 --[[
@@ -33,7 +55,84 @@ end
 	@return  bool     do circles collide
 --]]
 function doCirclesCollide(ax, ay, ar, bx, by, br)
-	local dx = bx - ax
-	local dy = by - ay
-	return dx^2 + dy^2 < (ar + br)^2
+	return (bx - ax)^2 + (by - ay)^2 < (ar + br)^2
+end
+
+--[[
+	Checks if a point is in a rectangle
+
+	Note: Only works with rectangles on the axis plane (not angled).
+
+	@param   number   point x
+	@param   number   point y
+	@param   number   rectangle x1 (upper left)
+	@param   number   rectangle y1 (upper left)
+	@param   number   rectangle x2 (lower right)
+	@param   number   rectangle y2 (lower right)
+	@return  bool     is point in rectangle
+--]]
+function isPointInRectangle(x, y, x1, y1, x2, y2)
+	return x > x1 and x < x2 and y > y1 and y < y2
+end
+
+--[[
+	Checks if a point is in a triangle
+
+	Note: This is a baycentric algorithm.
+
+	@param   number   point x
+	@param   number   point y
+	@param   number   triangle x1
+	@param   number   triangle y1
+	@param   number   triangle x2
+	@param   number   triangle y2
+	@param   number   triangle x3
+	@param   number   triangle y3
+	@return  bool     is point in triangle
+--]]
+function isPointInTriangle(x, y, x1, y1, x2, y2, x3, y3)
+	local inTriangle = false
+	local A = 1 / 2 * (-y2 * x3 + y1 * (-x2 + x3) + x1 * (y2 - y3) + x2 * y3)
+	local sign
+	if A < 0 then sign = -1 else sign = 1 end
+	local s = (y1 * x3 - x1 * y3 + (y3 - y1) * x + (x1 - x3) * y) * sign
+	if s > 0 then
+		local t = (x1 * y2 - y1 * x2 + (y1 - y2) * x + (x2 - x1) * y) * sign
+		if t > 0 then
+			if (s + t) < 2 * A * sign then
+				inTriangle = true
+			end
+		end
+	end
+	return inTriangle
+end
+
+--[[
+	Checks if a point is in a polygon
+
+	Note: This works for convex and concave polygons.
+
+	Ported from: http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
+	Author: W. Randolph Franklin
+
+	Polygon vertices format: {x1, y1, x2, y2, x3, y3, …)
+
+	@param   number   point x
+	@param   number   point y
+	@param   table    polygon vertices
+	@return  bool     is point in polygon
+--]]
+function isPointInPolygon(x, y, v)
+	local inPolygon = false
+	local lastV = #v - 1
+	local j = lastV
+	for i = 1, j, 2 do
+		if ((v[i+1] > y) ~= (v[j+1] > y)) and
+			(x < (v[j] - v[i]) * (y - v[i+1]) / (v[j+1] - v[i+1]) + v[i]) then
+			if inPolygon then inPolygon = false else inPolygon = true end
+		end
+		if j == lastV then j = -1 end
+		j = j + 2
+	end
+	return inPolygon
 end
