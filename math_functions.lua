@@ -330,6 +330,17 @@ function doAxisParallelRectanglesIntersect(r1x, r1y, r1w, r1h, r2x, r2y, r2w, r2
 end
 
 --[[
+	Gets the Hypothenuse's length using Pythagore's formula
+
+	@param   number   a side
+	@param   number   b side
+	@return  bool     Hypothenuse's length
+--]]
+function getHypotenuseLength(a, b)
+	return math.sqrt(a^2 + b^2)
+end
+
+--[[
 	Gets the distance between two points
 
 	@param   number   x1
@@ -339,16 +350,5 @@ end
 	@return  bool     distance
 --]]
 function getDistanceBetweenPoints(x1, y1, x2, y2)
-	return getHypothenuse(x2 - x1, y2 - y1)
-end
-
---[[
-	Gets the Hypothenuse's length using Pythagore's formula
-
-	@param   number   a side
-	@param   number   b side
-	@return  bool     Hypothenuse's length
---]]
-function getHypotenuseLength(a, b)
-	return math.sqrt(a^2 + b^2)
+	return getHypotenuseLength(x2 - x1, y2 - y1)
 end
