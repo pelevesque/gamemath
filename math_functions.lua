@@ -311,3 +311,20 @@ function doesCircleInstersectRectangle(cx, cy, cr, rcx, rcy, rw, rh)
 	local cornerDistance_sq = (circleDistanceX - rw / 2)^2 + (circleDistanceY - rh / 2)^2
 	return cornerDistance_sq <= cr^2
 end
+
+--[[
+	Checks if two axis parallel rectangles intersect
+
+	@param   number   rectangle 1 x (upper left)
+	@param   number   rectangle 1 y (upper left)
+	@param   number   rectangle 1 width
+	@param   number   rectangle 1 height
+	@param   number   rectangle 2 x (upper left)
+	@param   number   rectangle 2 y (upper left)
+	@param   number   rectangle 2 width
+	@param   number   rectangle 2 height
+	@return  bool     do axis parallel rectangles intersect
+--]]
+function doAxisParallelRectanglesIntersect(r1x, r1y, r1w, r1h, r2x, r2y, r2w, r2h)
+	return not ((r1x + r1w <= r2x) or (r1x >= r2x + r2w) or (r1y + r1h <= r2y) or (r1y >= r2y + r2h))
+end
