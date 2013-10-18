@@ -44,24 +44,7 @@ function reflectAngleInDegrees(attackAngle, planeAngle)
 end
 
 --[[
-	Checks if two circles are colliding
-
-	@param   number   cirle 1 x
-	@param   number   cirle 1 y
-	@param   number   cirle 1 r
-	@param   number   cirle 2 x
-	@param   number   cirle 2 y
-	@param   number   cirle 2 r
-	@return  bool     do circles collide
---]]
-function doCirclesCollide(ax, ay, ar, bx, by, br)
-	return (bx - ax)^2 + (by - ay)^2 < (ar + br)^2
-end
-
---[[
-	Checks if a point is in a rectangle
-
-	Note: Only works with rectangles on the axis plane (not angled).
+	Checks if a point is in an axis parallel rectangle
 
 	@param   number   point x
 	@param   number   point y
@@ -71,8 +54,25 @@ end
 	@param   number   rectangle y2 (lower right)
 	@return  bool     is point in rectangle
 --]]
-function isPointInRectangle(x, y, x1, y1, x2, y2)
+function isPointInAxisParallelRectangle(x, y, x1, y1, x2, y2)
 	return x > x1 and x < x2 and y > y1 and y < y2
+end
+
+--[[
+	Checks if a point is on an axis parallel rectangle
+
+	Note: Like isPointInAxisParallelRectangle, but the sides are included.
+
+	@param   number   point x
+	@param   number   point y
+	@param   number   rectangle x1 (upper left)
+	@param   number   rectangle y1 (upper left)
+	@param   number   rectangle x2 (lower right)
+	@param   number   rectangle y2 (lower right)
+	@return  bool     is point in rectangle
+--]]
+function isPointOnAxisParallelRectangle(x, y, x1, y1, x2, y2)
+	return x >= x1 and x <= x2 and y >= y1 and y <= y2
 end
 
 --[[
@@ -86,6 +86,21 @@ end
 --]]
 function isPointInCircle(x, y, cx, cy, cr)
 	return (x - cx)^2 + (y - cy)^2 < cr^2
+end
+
+--[[
+	Checks if a point is on a circle
+
+	Note: Like isPointInCircle, but the side is included.
+
+	@param   number   point x
+	@param   number   point y
+	@param   number   center x
+	@param   number   center y
+	@return  bool     is point in circle
+--]]
+function isPointOnCircle(x, y, cx, cy, cr)
+	return (x - cx)^2 + (y - cy)^2 <= cr^2
 end
 
 --[[
@@ -113,6 +128,40 @@ function isPointInTriangle(x, y, x1, y1, x2, y2, x3, y3)
 		local t = (x1 * y2 - y1 * x2 + (y1 - y2) * x + (x2 - x1) * y) * sign
 		if t > 0 then
 			if (s + t) < 2 * A * sign then
+				inTriangle = true
+			end
+		end
+	end
+	return inTriangle
+end
+
+--[[
+	Checks if a point is on a triangle
+
+	Note: This is a baycentric algorithm.
+
+	Note: Like isPointInTriangle, but the sides are included.
+
+	@param   number   point x
+	@param   number   point y
+	@param   number   triangle x1
+	@param   number   triangle y1
+	@param   number   triangle x2
+	@param   number   triangle y2
+	@param   number   triangle x3
+	@param   number   triangle y3
+	@return  bool     is point in triangle
+--]]
+function isPointOnTriangle(x, y, x1, y1, x2, y2, x3, y3)
+	local inTriangle = false
+	local A = 1 / 2 * (-y2 * x3 + y1 * (-x2 + x3) + x1 * (y2 - y3) + x2 * y3)
+	local sign
+	if A < 0 then sign = -1 else sign = 1 end
+	local s = (y1 * x3 - x1 * y3 + (y3 - y1) * x + (x1 - x3) * y) * sign
+	if s > 0 then
+		local t = (x1 * y2 - y1 * x2 + (y1 - y2) * x + (x2 - x1) * y) * sign
+		if t > 0 then
+			if (s + t) <= 2 * A * sign then
 				inTriangle = true
 			end
 		end
@@ -171,6 +220,29 @@ function isPointInEllipse(x, y, ex, ey, ew, eh, ea)
 end
 
 --[[
+	Checks if a point is on an ellipse
+
+	Note: This algorithm is not very efficient because of sin and cos,
+	      and it hasn't been tested.
+
+	Note: Like isPointInEllipse, but the sides are included.
+
+	@param   number   point x
+	@param   number   point y
+	@param   number   ellipse x
+	@param   number   ellipse y
+	@param   number   ellipse width
+	@param   number   ellipse height
+	@param   number   ellipse angled
+	@return  bool     is point in ellipse
+--]]
+function isPointOnEllipse(x, y, ex, ey, ew, eh, ea)
+	local A = ((x - ex) * math.cos(ea) - (y - ey) * math.sin(ea))^2 / (ew/2)^2
+	local B = ((x - ex) * math.sin(ea) + (y - ey) * math.cos(ea))^2 / (eh/2)^2
+	return A + B <= 1
+end
+
+--[[
 	Checks if a point is in an axis parallel ellipse
 
 	@param   number   point x
@@ -183,6 +255,38 @@ end
 --]]
 function isPointInAxisParallelEllipse(x, y, ex, ey, ew, eh)
 	return ((x - eh)^2 / ew^2) + ((y - ey)^2 / eh^2) < 1
+end
+
+--[[
+	Checks if a point is on an axis parallel ellipse
+
+	Note: Like isPointInAxisParallelEllipse, but the sides are included.
+
+	@param   number   point x
+	@param   number   point y
+	@param   number   ellipse x
+	@param   number   ellipse y
+	@param   number   ellipse width
+	@param   number   ellipse height
+	@return  bool     is point in non angled ellipse
+--]]
+function isPointOnAxisParallelEllipse(x, y, ex, ey, ew, eh)
+	return ((x - eh)^2 / ew^2) + ((y - ey)^2 / eh^2) < 1
+end
+
+--[[
+	Checks if two circles are intersecting
+
+	@param   number   cirle 1 x
+	@param   number   cirle 1 y
+	@param   number   cirle 1 r
+	@param   number   cirle 2 x
+	@param   number   cirle 2 y
+	@param   number   cirle 2 r
+	@return  bool     do circles collide
+--]]
+function doCirclesIntersect(ax, ay, ar, bx, by, br)
+	return (bx - ax)^2 + (by - ay)^2 < (ar + br)^2
 end
 
 --[[
