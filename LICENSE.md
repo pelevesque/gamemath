@@ -1,6 +1,6 @@
 # License
 
-skeletor uses the MIT open source license.
+LuaGameMath uses the MIT open source license.
 
 ## MIT License (MIT)
 

@@ -1,47 +1,12 @@
 --[[
-Title:     math functions
+Title:     LuaGameMath - Collisions
 Version:   1.0
 Author:    Pierre-Emmanuel Lévesque
 Email:     pierre.e.levesque@gmail.com
-Date:      October 14th, 2013
+Created:   October 14th, 2013
 Copyright: Copyright 2013, Pierre-Emmanuel Lévesque
 License:   MIT license - @see LICENSE.md
 --]]
-
---[[
-	Gets the polar coordinate pole (P point) from theta and radius
-
-	@param   number   theta (angle in radians)
-	@param   number   radius
-	@return  list     x, y
---]]
-function getPolarCoordinatePole(theta, radius)
-	return math.cos(theta) * radius, math.sin(theta) * radius
-end
-
---[[
-	Gets a line's angle in degrees from its points
-
-	@param   number   x1
-	@param   number   y1
-	@param   number   x2
-	@param   number   y2
-	@return  number   angle (degrees)
---]]
-function getLineAngleInDegreesFromPoints(x1, y1, x2, y2)
-	return math.atan2(y2 - y1, x2 - x1) * 180 / math.pi
-end
-
---[[
-	Reflects an angle in degrees off a plane
-
-	@param   number   attack angle (degrees)
-	@param   number   plane angle (degrees)
-	@return  number   reflected angle (degrees)
---]]
-function reflectAngleInDegrees(attackAngle, planeAngle)
-	return ((2 * planeAngle) - attackAngle) % 360
-end
 
 --[[
 	Checks if a point is in an axis parallel rectangle
@@ -52,7 +17,7 @@ end
 	@param   number   rectangle y1 (upper left)
 	@param   number   rectangle x2 (lower right)
 	@param   number   rectangle y2 (lower right)
-	@return  bool     is point in rectangle
+	@return  bool     is point in an axis parallel rectangle
 --]]
 function isPointInAxisParallelRectangle(x, y, x1, y1, x2, y2)
 	return x > x1 and x < x2 and y > y1 and y < y2
@@ -69,7 +34,7 @@ end
 	@param   number   rectangle y1 (upper left)
 	@param   number   rectangle x2 (lower right)
 	@param   number   rectangle y2 (lower right)
-	@return  bool     is point in rectangle
+	@return  bool     is point on an axis parallel rectangle
 --]]
 function isPointOnAxisParallelRectangle(x, y, x1, y1, x2, y2)
 	return x >= x1 and x <= x2 and y >= y1 and y <= y2
@@ -97,7 +62,7 @@ end
 	@param   number   point y
 	@param   number   center x
 	@param   number   center y
-	@return  bool     is point in circle
+	@return  bool     is point on circle
 --]]
 function isPointOnCircle(x, y, cx, cy, cr)
 	return (x - cx)^2 + (y - cy)^2 <= cr^2
@@ -150,10 +115,10 @@ end
 	@param   number   triangle y2
 	@param   number   triangle x3
 	@param   number   triangle y3
-	@return  bool     is point in triangle
+	@return  bool     is point on triangle
 --]]
 function isPointOnTriangle(x, y, x1, y1, x2, y2, x3, y3)
-	local inTriangle = false
+	local onTriangle = false
 	local A = 1 / 2 * (-y2 * x3 + y1 * (-x2 + x3) + x1 * (y2 - y3) + x2 * y3)
 	local sign
 	if A < 0 then sign = -1 else sign = 1 end
@@ -162,40 +127,11 @@ function isPointOnTriangle(x, y, x1, y1, x2, y2, x3, y3)
 		local t = (x1 * y2 - y1 * x2 + (y1 - y2) * x + (x2 - x1) * y) * sign
 		if t > 0 then
 			if (s + t) <= 2 * A * sign then
-				inTriangle = true
+				onTriangle = true
 			end
 		end
 	end
-	return inTriangle
-end
-
---[[
-	Checks if a point is in a polygon
-
-	Note: This works for convex and concave polygons.
-
-	Ported from: http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
-	Author: W. Randolph Franklin
-
-	Polygon vertices format: {x1, y1, x2, y2, x3, y3, …)
-
-	@param   number   point x
-	@param   number   point y
-	@param   table    polygon vertices
-	@return  bool     is point in polygon
---]]
-function isPointInPolygon(x, y, v)
-	local inPolygon = false
-	local lastV = #v - 1
-	local j = lastV
-	for i = 1, j, 2 do
-		if ((v[i+1] > y) ~= (v[j+1] > y)) and (x < (v[j] - v[i]) * (y - v[i+1]) / (v[j+1] - v[i+1]) + v[i]) then
-			if inPolygon then inPolygon = false else inPolygon = true end
-		end
-		if j == lastV then j = -1 end
-		j = j + 2
-	end
-	return inPolygon
+	return onTriangle
 end
 
 --[[
@@ -234,7 +170,7 @@ end
 	@param   number   ellipse width
 	@param   number   ellipse height
 	@param   number   ellipse angled
-	@return  bool     is point in ellipse
+	@return  bool     is point on ellipse
 --]]
 function isPointOnEllipse(x, y, ex, ey, ew, eh, ea)
 	local A = ((x - ex) * math.cos(ea) - (y - ey) * math.sin(ea))^2 / (ew/2)^2
@@ -268,14 +204,43 @@ end
 	@param   number   ellipse y
 	@param   number   ellipse width
 	@param   number   ellipse height
-	@return  bool     is point in non angled ellipse
+	@return  bool     is point on non angled ellipse
 --]]
 function isPointOnAxisParallelEllipse(x, y, ex, ey, ew, eh)
-	return ((x - eh)^2 / ew^2) + ((y - ey)^2 / eh^2) < 1
+	return ((x - eh)^2 / ew^2) + ((y - ey)^2 / eh^2) <= 1
 end
 
 --[[
-	Checks if two circles are intersecting
+	Checks if a point is in a polygon
+
+	Note: This works for convex and concave polygons.
+
+	Ported from: http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
+	Author: W. Randolph Franklin
+
+	Polygon vertices format: {x1, y1, x2, y2, x3, y3, …}
+
+	@param   number   point x
+	@param   number   point y
+	@param   table    polygon vertices
+	@return  bool     is point in polygon
+--]]
+function isPointInPolygon(x, y, v)
+	local inPolygon = false
+	local lastV = #v - 1
+	local j = lastV
+	for i = 1, j, 2 do
+		if ((v[i+1] > y) ~= (v[j+1] > y)) and (x < (v[j] - v[i]) * (y - v[i+1]) / (v[j+1] - v[i+1]) + v[i]) then
+			if inPolygon then inPolygon = false else inPolygon = true end
+		end
+		if j == lastV then j = -1 end
+		j = j + 2
+	end
+	return inPolygon
+end
+
+--[[
+	Checks if two circles intersect
 
 	@param   number   cirle 1 x
 	@param   number   cirle 1 y
@@ -283,7 +248,7 @@ end
 	@param   number   cirle 2 x
 	@param   number   cirle 2 y
 	@param   number   cirle 2 r
-	@return  bool     do circles collide
+	@return  bool     do circles intersect
 --]]
 function doCirclesIntersect(ax, ay, ar, bx, by, br)
 	return (bx - ax)^2 + (by - ay)^2 < (ar + br)^2
@@ -299,9 +264,9 @@ end
 	@param   number   rectangle center y
 	@param   number   rectangle width
 	@param   number   rectangle height
-	@return  bool     does circle intersect rectangle
+	@return  bool     does circle intersect axis parallel rectangle
 --]]
-function doesCircleInstersectRectangle(cx, cy, cr, rcx, rcy, rw, rh)
+function doesCircleInstersectAxisParallelRectangle(cx, cy, cr, rcx, rcy, rw, rh)
 	local circleDistanceX = math.abs(cx - rcx)
 	if circleDistanceX > rw / 2 + cr then return false end
 	local circleDistanceY = math.abs(cy - rcy)
@@ -327,28 +292,4 @@ end
 --]]
 function doAxisParallelRectanglesIntersect(r1x, r1y, r1w, r1h, r2x, r2y, r2w, r2h)
 	return not ((r1x + r1w <= r2x) or (r1x >= r2x + r2w) or (r1y + r1h <= r2y) or (r1y >= r2y + r2h))
-end
-
---[[
-	Gets the Hypothenuse's length using Pythagore's formula
-
-	@param   number   a side
-	@param   number   b side
-	@return  bool     Hypothenuse's length
---]]
-function getHypotenuseLength(a, b)
-	return math.sqrt(a^2 + b^2)
-end
-
---[[
-	Gets the distance between two points
-
-	@param   number   x1
-	@param   number   y1
-	@param   number   y1
-	@param   number   y2
-	@return  bool     distance
---]]
-function getDistanceBetweenPoints(x1, y1, x2, y2)
-	return getHypotenuseLength(x2 - x1, y2 - y1)
 end
