@@ -2,7 +2,7 @@
 
 ## About
 
-A collection of math functions programmed in Lua for game creation.
+A collection of math functions in Lua for game creation.
 
 These functions have no dependencies and are not organized as classes or modules. This repository is designed as a collection from which to copy the particular functions you need.
 
