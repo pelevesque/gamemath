@@ -9,20 +9,10 @@ These functions have no dependencies and are not organized as classes or modules
 ### collisions.lua
 
 (bool) isPointInAxisParallelRectangle(x, y, x1, y1, x2, y2)  
-(bool) isPointOnAxisParallelRectangle(x, y, x1, y1, x2, y2)  
-
 (bool) isPointInCircle(x, y, cx, cy, cr)  
-(bool) isPointOnCircle(x, y, cx, cy, cr)  
-
 (bool) isPointInTriangle(x, y, x1, y1, x2, y2, x3, y3)  
-(bool) isPointOnTriangle(x, y, x1, y1, x2, y2, x3, y3)  
-
 (bool) isPointInEllipse(x, y, ex, ey, ew, eh, ea)  
-(bool) isPointOnEllipse(x, y, ex, ey, ew, eh, ea)  
-
 (bool) isPointInAxisParallelEllipse(x, y, ex, ey, ew, eh)  
-(bool) isPointOnAxisParallelEllipse(x, y, ex, ey, ew, eh)  
-
 (bool) isPointInPolygon(x, y, v)  
 
 (bool) doCirclesIntersect(ax, ay, ar, bx, by, br)  
