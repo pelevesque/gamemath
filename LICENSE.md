@@ -1,6 +1,6 @@
 # License
 
-LuaGameMath uses the MIT open source license.
+gamemath uses the MIT open source license.
 
 ## MIT License (MIT)
 

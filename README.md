@@ -1,4 +1,4 @@
-# LuaGameMath
+# gamemath
 
 ## About
 

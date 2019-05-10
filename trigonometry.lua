@@ -1,5 +1,5 @@
 --[[
-Title:     LuaGameMath - Trigonometry
+Title:     gamemath - trigonometry
 Version:   1.0
 Author:    Pierre-Emmanuel Lévesque
 Email:     pierre.e.levesque@gmail.com
